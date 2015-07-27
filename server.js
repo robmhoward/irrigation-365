@@ -1,27 +1,18 @@
-var port = process.env.PORT || 1945;
+var port = process.env.PORT || 9000;
 var express = require('express');
 var https = require('https');
 var bodyParser = require('body-parser');
 var decodejwt = require('./decodejwt.js');
 var getAccessToken = require('./getAccessToken.js');
-var jsonToCsv = require('./jsonToCsv.js');
 var getServiceData = require('./getServiceData.js');
 var userProfile = require('./userProfile.js');
 var cookieParser = require('cookie-parser')
-var mongo = require('mongodb');
-var monk = require('monk');
-var db = monk('mongodb://HRPredictMongo:jwznStM5KoSg8LWr1NkEwKY9oUkEzxWNuH7a8YxzJFY-@ds036648.mongolab.com:36648/HRPredictMongo');
 
 var app = express();
 
-app.use('/', express.static(__dirname + "/public"));
+app.use('/', express.static(__dirname + "/app"));
 app.use(cookieParser());
 app.use(bodyParser.json()); // for parsing application/json
-
-app.use(function(req,res,next){
-    req.db = db;
-    next();
-});
 
 // setInterval(sendDigestEmails, 1000 * 5);//60 * 60 * 24);
 
