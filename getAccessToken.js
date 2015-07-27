@@ -5,15 +5,8 @@ var authConfigs = {
 		stsTokenPath: "/common/oauth2/token",
 		stsAuthorizationPath: "/common/oauth2/authorize",
 		stsHostName: "login.microsoftonline.com",
-		clientId: "f531c26a-4d16-44b9-80cf-aa49d7394fbb",
-		clientSecret: "%2BoX1vOIHrkkHxYcuvclxi8sHsFn5uEf4bhaGhNXqJqI%3D" //already url encoded
-	},
-	MSA: {
-		stsTokenPath: "/oauth20_token.srf",
-		stsAuthorizationPath: "/oauth20_authorize.srf",
-		stsHostName: "login.live.com",
-		clientId: "000000004415354E",
-		clientSecret: "zgDE2DuPotxa4AJNxelJwAarftiwasm3"
+		clientId: "f6ca6ca0-4b41-4ef9-ae4a-6ad08cccef8b",
+		clientSecret: "gFmBSZLqq67U9gpJFQ7S%2BUYYjpCfeoFiipSEYrxrZUY%3D" //already url encoded
 	}
 };
 
