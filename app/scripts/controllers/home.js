@@ -2,13 +2,13 @@
 
 /**
  * @ngdoc function
- * @name irrigation365App.controller:AboutCtrl
+ * @name irrigation365App.controller:HomeCtrl
  * @description
- * # AboutCtrl
+ * # HomeCtrl
  * Controller of the irrigation365App
  */
 angular.module('irrigation365App')
-  .controller('AboutCtrl', function () {
+  .controller('HomeCtrl', function () {
     this.awesomeThings = [
       'HTML5 Boilerplate',
       'AngularJS',
