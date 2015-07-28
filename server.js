@@ -1,4 +1,5 @@
-var port = process.env.PORT || 9000;
+var fallbackPort = 9000;
+var port = process.env.PORT || fallbackPort;
 var express = require('express');
 var https = require('https');
 var bodyParser = require('body-parser');
@@ -19,19 +20,25 @@ app.use(bodyParser.json()); // for parsing application/json
 
 app.get('/api/me', function(request, response) {
 	var me = {
+		name: "Test User",
+		email: "rob@howard.cc",
+		sendEmailSummaries: true,
+		minimumMoistureReading: 75,
+		onlyWaterWhenItsDry: true,
+		skipWateringWhenItRains: true,
 		currentTime: new Date()
 	};
 	
-	userProfile.getCurrentUser(request, function(err, user) {
-		if (user) {
-			me = user;
-			me.addUser = me.aadTokens.idToken;
-			delete me.aadTokens;
-			delete me.msaTokens;
-		}
+	// userProfile.getCurrentUser(request, function(err, user) {
+	// 	if (user) {
+	// 		me = user;
+	// 		me.addUser = me.aadTokens.idToken;
+	// 		delete me.aadTokens;
+	// 		delete me.msaTokens;
+	// 	}
 		response.send(me);
 		response.end();
-	});
+	// });
 });
 
 app.patch('/api/me', function(request, response) {
@@ -125,7 +132,7 @@ function handleHistoricalDataRequest(request, response, convertToCsv) {
 
 function catchCode(request, response, authConfig, scopes, resource, documentCreationFunction, documentUpdateFunction, documentFindFunction) {
 	
-	var protocol = port == 1945 ? "http" : "https";
+	var protocol = port == fallbackPort ? "http" : "https";
 	
 	var redirectUrl = protocol + '://' + request.get('host') + request.path;
 	if (!request.query.code) {
