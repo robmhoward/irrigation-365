@@ -42,8 +42,7 @@ app.get('/api/me', function(request, response) {
 });
 
 app.patch('/api/me', function(request, response) {
-	var cookieUserId = request.cookies.userId;
-	if (request.body && cookieUserId) {
+	if (request.body) {
 		var updateDocument = {};
 		var validProperties = ["firstName", "lastName", "email", "sendPredictionEmails", "sendSummaryEmails"];
 		var updatedProperties = 0;
@@ -55,14 +54,17 @@ app.patch('/api/me', function(request, response) {
 			}
 		}
 		if (updatedProperties > 0) {
-			var userCollection = db.get('usercollection');
-			userCollection.updateById(cookieUserId, { $set: updateDocument })
-				.error(function (err) { console.log("Error: " + err); })
-				.success(function (user) { 
-						response.writeHead(202);
-						response.end();
-						console.log("Successfully updated user");
-					});
+			userProfile.updateUser(request, updateDocument, function(err, result) {
+				if (err) {
+					response.writeHead(500);
+					response.end();
+					console.log("Failed to update user");
+				} else {
+					response.writeHead(202);
+					response.end();
+					console.log("Successfully updated user");
+				}
+			});
 		} else {
 			response.writeHead(400);
 			response.write("No valid properties to update");
@@ -72,7 +74,7 @@ app.patch('/api/me', function(request, response) {
 		response.writeHead(400);
 		response.write("Request is missing user or body");
 		response.end();
-	}
+	}	
 });
 
 
@@ -155,10 +157,9 @@ function catchCode(request, response, authConfig, scopes, resource, documentCrea
 				console.log("Setting cookie to: " + newUserIdCookieValue);
 				response.cookie('userId', newUserIdCookieValue, { maxAge: 900000, httpOnly: true });
 			}
-			response.writeHead(302, {"Location": request.protocol + '://' + request.get('host') + '/app.html#/profile'});
+			response.writeHead(302, {"Location": request.protocol + '://' + request.get('host') + '/#/home'});
 			response.end();
 		}
-
 		
 		getAccessToken.getTokenResponseWithCode(authConfig, request.query.code, redirectUrl, function(error, tokenResponseData) {
 			if (error) {
