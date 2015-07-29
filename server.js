@@ -7,7 +7,7 @@ var decodejwt = require('./decodejwt.js');
 var getAccessToken = require('./getAccessToken.js');
 var getServiceData = require('./getServiceData.js');
 var userProfile = require('./userProfile.js');
-var cookieParser = require('cookie-parser')
+var cookieParser = require('cookie-parser');
 
 var app = express();
 
@@ -19,6 +19,23 @@ app.use(bodyParser.json()); // for parsing application/json
 // setInterval(sendDigestEmails, 1000 * 5);//60 * 60 * 24);
 
 app.get('/api/me', function(request, response) {
+	var mysql = require('mysql2');
+	var dbconnection = mysql.createConnection({user:'i365', database:'McGZU27LfL7JMj3x'});
+	dbconnection.connect(function(err)) {
+		if(err) {
+			console.error('error connecting' + err.stack);
+			return;
+		}
+		
+	}
+	dbconnection.query('SELECT * FROM user', function(err,rows) {
+			if(err) {
+				console.error('error connecting' + err.stack);
+			return;
+			}
+			response.send(rows);
+		});
+	
 	var me = {
 		name: "Test User",
 		email: "rob@howard.cc",

@@ -3,6 +3,9 @@ module.exports = {
 	updateUser: updateUser
 };
 
+var mysql = require('mysql2');
+var dbconnection = mysql.createConnection(user:'i365', database:'McGZU27LfL7JMj3x');
+
 
 function getUserIdFromRequest(request) {
 	return request.cookies.userId;
