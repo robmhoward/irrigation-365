@@ -34,6 +34,7 @@ app.get('/api/me', function(request, response) {
 				return;
 			}
 			response.send(rows);
+			response.end();
 		});
 	
 	var me = {
@@ -53,8 +54,8 @@ app.get('/api/me', function(request, response) {
 	// 		delete me.aadTokens;
 	// 		delete me.msaTokens;
 	// 	}
-		response.send(me);
-		response.end();
+	//	response.send(me);
+	//	response.end();
 	// });
 });
 
