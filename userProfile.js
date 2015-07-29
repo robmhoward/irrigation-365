@@ -4,8 +4,8 @@ module.exports = {
 };
 
 var mysql = require('mysql2');
-var dbconnection = mysql.createConnection({host:'localhost',user:'i365', password:'McGZU27LfL7JMj3x',database:'irrigation365'});
-dbconnection.connect(function(err) {
+var db = mysql.createConnection({host:'localhost',user:'i365', password:'McGZU27LfL7JMj3x',database:'irrigation365'});
+db.connect(function(err) {
 		if(err) {
 			console.error('error connecting' + err.stack);
 			return;
@@ -38,21 +38,18 @@ function getCurrentUser(request, callback) {
 	}
 }
 
+//Assumption is that userId is the AAD GUID 
 function getUserFromDataStore(request, userId, callback) {
-	var db = request.db;
-	var userCollection = db.get('usercollection');
-	
-	userCollection.findById(userId)
-		.success(function (user) {
-			console.log("current user found in db");
-			callback(null, user);
-		})
-		.error(function (err) {
-			console.log("Error finding current user");	
-			callback(err);
-		});
+		db.query('SELECT * from user WHERE aadId='+mysql.escape(userId)+ ' limit 1', function(err,rows){
+		if(err) {
+				console.error('error:' + err.stack);
+				callback(err);
+		}
+		callback(null,rows);
+	});
 }
 
 function updateUserInDataSource(request, userId, callback) {
+	//need to determine where we are getting the update from
 	
 }
