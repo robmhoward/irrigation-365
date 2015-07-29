@@ -5,7 +5,12 @@ module.exports = {
 
 var mysql = require('mysql2');
 var dbconnection = mysql.createConnection({host:'localhost',user:'i365', password:'McGZU27LfL7JMj3x',database:'irrigation365'});
-
+dbconnection.connect(function(err) {
+		if(err) {
+			console.error('error connecting' + err.stack);
+			return;
+		}
+});
 
 function getUserIdFromRequest(request) {
 	return request.cookies.userId;

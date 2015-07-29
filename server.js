@@ -33,7 +33,7 @@ app.get('/api/me', function(request, response) {
 				console.error('error connecting' + err.stack);
 				return;
 			}
-			response.send(rows);
+			response.send(rows+request);
 			response.end();
 		});
 	
