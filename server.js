@@ -20,7 +20,7 @@ app.use(bodyParser.json()); // for parsing application/json
 
 app.get('/api/me', function(request, response) {
 	var mysql = require('mysql2');
-	var dbconnection = mysql.createConnection({user:'i365', database:'McGZU27LfL7JMj3x'});
+	var dbconnection = mysql.createConnection({user:'i365', password:'McGZU27LfL7JMj3x',database:'irrigation365'});
 	dbconnection.connect(function(err) {
 		if(err) {
 			console.error('error connecting' + err.stack);

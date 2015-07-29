@@ -4,7 +4,7 @@ module.exports = {
 };
 
 var mysql = require('mysql2');
-var dbconnection = mysql.createConnection({host:'localhost',user:'i365', database:'McGZU27LfL7JMj3x'});
+var dbconnection = mysql.createConnection({host:'localhost',user:'i365', password:'McGZU27LfL7JMj3x',database:'irrigation365'});
 
 
 function getUserIdFromRequest(request) {
