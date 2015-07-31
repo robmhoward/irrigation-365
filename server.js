@@ -10,14 +10,10 @@ var userProfile = require('./userProfile.js');
 var cookieParser = require('cookie-parser');
 var app = express();
 
+//db connection to mysql
 var mysql = require('mysql2');
 var db = mysql.createConnection({host:'localhost',user:'i365', password:'McGZU27LfL7JMj3x',database:'irrigation365'});
-db.connect(function(err) {
-		if(err) {
-			console.error('error connecting' + err.stack);
-			return;
-		}
-});
+db.connect(function(err) {if(err) {console.error('error connecting' + err.stack);return;}});
 
 app.use('/', express.static(__dirname + "/app"));
 app.use('/bower_components', express.static(__dirname + "/bower_components"));

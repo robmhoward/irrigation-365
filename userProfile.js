@@ -33,7 +33,7 @@ function getCurrentUser(request, callback) {
 
 //Assumption is that userId is the AAD GUID 
 function getUserFromDataStore(request, userId, callback) {
-		request.db.query('SELECT * from user WHERE aadId='+mysql.escape(userId)+ ' limit 1', function(err,rows){
+		request.db.query('SELECT * from user WHERE aadId='+request.db.escape(userId)+ ' limit 1', function(err,rows){
 		if(err) {
 				console.error('error:' + err.stack);
 				callback(err);
