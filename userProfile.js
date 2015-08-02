@@ -4,6 +4,7 @@ module.exports = {
 };
 
 
+
 function getUserIdFromRequest(request) {
 	return request.cookies.userId;
 }
@@ -30,21 +31,18 @@ function getCurrentUser(request, callback) {
 	}
 }
 
+//Assumption is that userId is the AAD GUID 
 function getUserFromDataStore(request, userId, callback) {
-	var db = request.db;
-	var userCollection = db.get('usercollection');
-	
-	userCollection.findById(userId)
-		.success(function (user) {
-			console.log("current user found in db");
-			callback(null, user);
-		})
-		.error(function (err) {
-			console.log("Error finding current user");	
-			callback(err);
-		});
+		request.db.query('SELECT * from user WHERE aadId='+request.db.escape(userId)+ ' limit 1', function(err,rows){
+		if(err) {
+				console.error('error:' + err.stack);
+				callback(err);
+		}
+		callback(null,rows);
+	});
 }
 
 function updateUserInDataSource(request, userId, callback) {
+	//need to determine where we are getting the update from
 	
 }

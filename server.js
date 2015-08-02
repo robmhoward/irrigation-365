@@ -1,4 +1,4 @@
-var fallbackPort = 9000;
+var fallbackPort = 9001;
 var port = process.env.PORT || fallbackPort;
 var express = require('express');
 var https = require('https');
@@ -7,18 +7,35 @@ var decodejwt = require('./decodejwt.js');
 var getAccessToken = require('./getAccessToken.js');
 var getServiceData = require('./getServiceData.js');
 var userProfile = require('./userProfile.js');
-var cookieParser = require('cookie-parser')
-
+var cookieParser = require('cookie-parser');
 var app = express();
+
+//db connection to mysql
+var mysql = require('mysql2');
+var db = mysql.createConnection({host:'localhost',user:'i365', password:'McGZU27LfL7JMj3x',database:'irrigation365'});
+db.connect(function(err) {if(err) {console.error('error connecting' + err.stack);return;}});
 
 app.use('/', express.static(__dirname + "/app"));
 app.use('/bower_components', express.static(__dirname + "/bower_components"));
 app.use(cookieParser());
 app.use(bodyParser.json()); // for parsing application/json
-
+app.use(function(req,res,next){
+    req.db = db;
+    next();
+});
 // setInterval(sendDigestEmails, 1000 * 5);//60 * 60 * 24);
 
 app.get('/api/me', function(request, response) {
+	//this db request will just spit out all the db entries
+	request.db.query('SELECT * FROM user', function(err,rows) {
+			if(err) {
+				console.error('error connecting' + err.stack);
+				return;
+			}
+			response.send(rows);
+			response.end();
+		});
+	
 	var me = {
 		name: "Test User",
 		email: "rob@howard.cc",
@@ -36,8 +53,8 @@ app.get('/api/me', function(request, response) {
 	// 		delete me.aadTokens;
 	// 		delete me.msaTokens;
 	// 	}
-		response.send(me);
-		response.end();
+	//	response.send(me);
+	//	response.end();
 	// });
 });
 
