@@ -1,4 +1,4 @@
-var fallbackPort = 9001;
+var fallbackPort = 9000;
 var port = process.env.PORT || fallbackPort;
 var express = require('express');
 var https = require('https');
@@ -149,7 +149,7 @@ function handleHistoricalDataRequest(request, response, convertToCsv) {
 	}
 }
 
-function catchCode(request, response, authConfig, scopes, resource, documentCreationFunction, documentUpdateFunction, documentFindFunction) {
+function catchCode(request, response, authConfig, scopes, resource) {
 	
 	var protocol = port == fallbackPort ? "http" : "https";
 	
@@ -160,13 +160,11 @@ function catchCode(request, response, authConfig, scopes, resource, documentCrea
 	} else {
 		
 		var cookieUserId = request.cookies.userId;
-		var db = request.db;
-		var userCollection = db.get('usercollection');
 
 		function updateUserInfo(userId, documentObject) {
-			userCollection.updateById(userId, { $set: documentObject })
-				.error(function (err) { console.log("Error: " + err); })
-				.success(function (user) { console.log("Successfully updated user"); });
+			userProfile.updateUser(request, {}, function(error, results) {
+				setCookieRedirectAndEndRequest(userId);
+			});
 		}
 	
 		function setCookieRedirectAndEndRequest(newUserIdCookieValue) {
@@ -188,37 +186,34 @@ function catchCode(request, response, authConfig, scopes, resource, documentCrea
 				console.log(tokenResponseData);
 				var tokenResponse = JSON.parse(tokenResponseData);
 				
-				var userInsertDocument = documentCreationFunction(tokenResponse);
-				var userUpdateDocument = documentUpdateFunction(tokenResponse);
-				
 				if (cookieUserId) {
 					console.log("Found user id cookie");
 					//replace the current user's aad user info with what we get back from catchcode
-					updateUserInfo(cookieUserId, userUpdateDocument);
+					updateUserInfo(cookieUserId, tokenResponse);
 					setCookieRedirectAndEndRequest();
 				} else {
 					console.log("No user id cookie found");
 					//try to find a current user with this id
-					userCollection.findOne(documentFindFunction(tokenResponse))
-						.success(function(user) {
-							if (user) {
-								updateUserInfo(user._id, userUpdateDocument);
-								setCookieRedirectAndEndRequest(user._id);
-							} else {
-								userUpdateDocument.sendPredictionEmails = true;
-								userUpdateDocument.sendSummaryEmails = true;
-								userCollection.insert(userInsertDocument)
-									.success(function(user) {
-										setCookieRedirectAndEndRequest(user._id);
-									})
-									.error(function(err) {
-										console.log("Error: " + err);
-									});
-							}
-						})
-						.error(function(err) {
-							console.log("Error: " + err);
-						});
+					
+					var idToken = decodejwt.decodeJwt(tokenResponse.id_token).payload;
+		
+					userProfile.lookupUser(request, idToken.oid, function(error, result) {
+						if (result === undefined) {
+							userProfile.insertUser(
+								request,
+								{
+									aadId: idToken.oid,
+									firstName: idToken.given_name,
+									lastName: idToken.family_name,
+									emailAddress: idToken.upn
+								},
+								function (error, results) {
+									setCookieRedirectAndEndRequest(idToken.oid);
+								});
+						} else {
+							updateUserInfo(idToken.oid, tokenResponse);
+						}
+					});
 				}
 			}
 		});
@@ -226,42 +221,7 @@ function catchCode(request, response, authConfig, scopes, resource, documentCrea
 }
 
 app.get('/catchCode', function(request, response) {
-
-	function createAadDocumentObject(tokenResponse) {
-		var idToken = decodejwt.decodeJwt(tokenResponse.id_token).payload;
-		
-		return {
-				aadUserId: idToken.oid,
-				aadTokens: {
-					accessToken: tokenResponse.access_token,
-					refreshToken: tokenResponse.refresh_token,
-					idToken: idToken 
-				},
-				firstName: idToken.given_name,
-				lastName: idToken.family_name,
-				email: idToken.upn
-			};
-	}
-	
-	function updateAadDocumentObject(tokenResponse) {
-		var idToken = decodejwt.decodeJwt(tokenResponse.id_token).payload;
-		
-		return {
-				aadUserId: idToken.oid,
-				aadTokens: {
-					accessToken: tokenResponse.access_token,
-					refreshToken: tokenResponse.refresh_token,
-					idToken: idToken 
-				}
-			};
-	}
-	
-	function findAadDocumentObject(tokenResponse) {
-		var idToken = decodejwt.decodeJwt(tokenResponse.id_token).payload;
-		return { aadUserId: idToken.oid };
-	}
-
-	catchCode(request, response, "AAD", null, "https://outlook.office365.com", createAadDocumentObject, updateAadDocumentObject, findAadDocumentObject);
+	catchCode(request, response, "AAD", null, "https://outlook.office365.com");
 });
 
 console.log("Starting server on port " + port + "...");
